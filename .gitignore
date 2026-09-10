@@ -1,0 +1,19 @@
+# Secrets / local environment
+.env
+
+# Terraform state
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+crash.*.log
+
+# Local variable files
+terraform.tfvars
+*.auto.tfvars
+
+# Plans
+*.tfplan
+
+# Local data
+./data
