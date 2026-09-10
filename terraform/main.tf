@@ -188,7 +188,8 @@ resource "azurerm_synapse_sql_pool" "warehouse" {
   create_mode          = "Default"
 
   # Required by AzureRM 5.x. LRS is the lower-cost backup-storage option.
-  storage_account_type = var.synapse_backup_storage_type
+  storage_account_type      = var.synapse_backup_storage_type
+  geo_backup_policy_enabled = false
 
   tags = var.tags
 }
