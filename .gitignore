@@ -1,19 +1,39 @@
-# Source data
+# Ignore everything by default
+*
+
+# Track root project files
+!.gitignore
+!README.md
+!load-env.ps1
+
+# Track Terraform directory
+!terraform/
+terraform/*
+
+# Track required Terraform source/config files
+!terraform/*.tf
+!terraform/.env.example
+
+!terraform/.terraform.lock.hcl
+
+# Never track Terraform local/generated files
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/crash.log
+terraform/crash.*.log
+
+# Track future project directories
+!functions/
+!functions/**
+!adf/
+!adf/**
+!sql/
+!sql/**
+!powerbi/
+!powerbi/**
+!docs/
+!docs/**
+
+# Keep local data excluded
 data/
-
-# Secrets / local environment
-.env
-
-# Terraform state
-*.tfstate
-*.tfstate.*
-.terraform/
-crash.log
-crash.*.log
-
-# Local variable files
-terraform.tfvars
-*.auto.tfvars
-
-# Plans
-*.tfplan
