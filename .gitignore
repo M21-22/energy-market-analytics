@@ -1,39 +1,83 @@
-# Ignore everything by default
-*
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Track root project files
-!.gitignore
-!README.md
-!load-env.ps1
+# Virtual environments
+.venv/
+venv/
+env/
 
-# Track Terraform directory
-!terraform/
-terraform/*
 
-# Track required Terraform source/config files
-!terraform/*.tf
-!terraform/.env.example
+# ============================================================
+# Environment / secrets
+# ============================================================
+.env
+.env.*
+!.env.example
 
-!terraform/.terraform.lock.hcl
+# Azure Functions local configuration
+function_app/local.settings.json
 
-# Never track Terraform local/generated files
-terraform/.terraform/
-terraform/*.tfstate
-terraform/*.tfstate.*
-terraform/crash.log
-terraform/crash.*.log
 
-# Track future project directories
-!functions/
-!functions/**
-!adf/
-!adf/**
-!sql/
-!sql/**
-!powerbi/
-!powerbi/**
-!docs/
-!docs/**
+# ============================================================
+# Terraform
+# ============================================================
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
 
-# Keep local data excluded
+# Terraform variable files may contain secrets/local values
+*.tfvars
+*.tfvars.json
+
+# Keep example variable files
+!*.tfvars.example
+!*.tfvars.json.example
+
+.terraform.tfstate.lock.info
+
+# Terraform crash logs
+crash.log
+crash.*.log
+
+
+# ============================================================
+# Local project data
+# ============================================================
 data/
+scripts/
+prompts.txt
+*project_plan.md
+*.png
+
+
+# ============================================================
+# IDE / editor
+# ============================================================
+.vscode/
+.idea/
+*.code-workspace
+
+
+# ============================================================
+# OS-generated files
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# ============================================================
+# Logs / temporary files
+# ============================================================
+*.log
+*.tmp
+*.temp
+~$*
