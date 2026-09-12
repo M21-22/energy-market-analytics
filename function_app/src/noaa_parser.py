@@ -259,5 +259,13 @@ def _validate_climate(df: pd.DataFrame) -> None:
 
 def dataframe_to_parquet_bytes(df: pd.DataFrame) -> bytes:
     buffer = BytesIO()
-    df.to_parquet(buffer, index=False, engine="pyarrow")
+
+    df.to_parquet(
+        buffer,
+        index=False,
+        engine="pyarrow",
+        coerce_timestamps="ms",
+        allow_truncated_timestamps=True,
+    )
+    
     return buffer.getvalue()

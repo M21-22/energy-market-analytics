@@ -162,6 +162,8 @@ def dataframe_to_parquet_bytes(df: pd.DataFrame) -> bytes:
         buffer,
         index=False,
         engine="pyarrow",
+        coerce_timestamps="ms",
+        allow_truncated_timestamps=True,
     )
 
     return buffer.getvalue()
