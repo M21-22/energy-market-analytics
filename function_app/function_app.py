@@ -8,30 +8,25 @@ import azure.functions as func
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 
-from src.noaa_parser import build_climate_dataframe, dataframe_to_parquet_bytes
-from src.eia_retail_parser import (
-    build_retail_dataframe,
-    dataframe_to_parquet_bytes as retail_to_parquet_bytes,
-)
-from src.eia_generation_parser import (
-    build_generation_dataframe,
-    dataframe_to_parquet_bytes as generation_to_parquet_bytes,
-)
+from src.noaa_parser import build_climate_dataframe
+from src.eia_retail_parser import build_retail_dataframe
+from src.eia_generation_parser import build_generation_dataframe
+from src.partitioned_parquet import dataframe_to_partitioned_parquet
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
 RAW_CONTAINER = "raw"
 CURATED_CONTAINER = "curated"
 NOAA_PREFIX = "noaa/climate/"
-CURATED_OUTPUT = "climate/climate_monthly.parquet"
+CURATED_OUTPUT = "climate"
 
 EIA_RETAIL_PREFIX = "eia/retail/"
 EIA_RETAIL_FILENAME = "HS861M_2010-current.xlsx"
-EIA_RETAIL_OUTPUT = "eia/retail/retail_monthly.parquet"
+EIA_RETAIL_OUTPUT = "eia/retail"
 
 EIA_GENERATION_PREFIX = "eia/generation/"
 EIA_GENERATION_FILENAME = "generation_monthly.xlsx"
-EIA_GENERATION_OUTPUT = "eia/generation/generation_monthly.parquet"
+EIA_GENERATION_OUTPUT = "eia/generation"
 
 
 FILE_PREFIXES = {
@@ -128,21 +123,24 @@ def process_noaa(req: func.HttpRequest) -> func.HttpResponse:
             min_year=min_year,
         )
 
-        parquet = dataframe_to_parquet_bytes(climate)
-
-        curated.upload_blob(
-            name=CURATED_OUTPUT,
-            data=parquet,
-            overwrite=True,
+        partitions = dataframe_to_partitioned_parquet(
+            climate,
+            CURATED_OUTPUT,
         )
+
+        for blob_name, parquet_bytes in partitions:
+            curated.upload_blob(
+                name=blob_name,
+                data=parquet_bytes,
+                overwrite=True,
+            )
 
         result = {
             "status": "success",
             "rows_written": len(climate),
             "min_period": climate["period"].min().strftime("%Y-%m"),
             "max_period": climate["period"].max().strftime("%Y-%m"),
-            "output": f"{CURATED_CONTAINER}/{CURATED_OUTPUT}",
-            "source_files": selected,
+            "partitions_written": len(partitions),
         }
 
         logging.info("NOAA processing completed: %s", result)
@@ -191,26 +189,24 @@ def process_eia_retail(
 
         retail = build_retail_dataframe(_download_bytes(raw, source_blob), min_year=min_year)
 
-        parquet = retail_to_parquet_bytes(retail)
-
-        curated.upload_blob(
-            name=EIA_RETAIL_OUTPUT,
-            data=parquet,
-            overwrite=True,
+        partitions = dataframe_to_partitioned_parquet(
+            retail,
+            EIA_RETAIL_OUTPUT,
         )
+
+        for blob_name, parquet_bytes in partitions:
+            curated.upload_blob(
+                name=blob_name,
+                data=parquet_bytes,
+                overwrite=True,
+            )
 
         result = {
             "status": "success",
             "rows_written": len(retail),
-            "states": int(retail["state_code"].nunique()),
-            "sectors": int(retail["sector"].nunique()),
             "min_period": retail["period"].min().strftime("%Y-%m"),
             "max_period": retail["period"].max().strftime("%Y-%m"),
-            "source_file": source_blob,
-            "output": (
-                f"{CURATED_CONTAINER}/"
-                f"{EIA_RETAIL_OUTPUT}"
-            ),
+            "partitions_written": len(partitions),
         }
 
         logging.info(
@@ -249,94 +245,41 @@ def process_eia_generation(
 ) -> func.HttpResponse:
 
     try:
-        body = (
-            req.get_json()
-            if req.get_body()
-            else {}
-        )
+        body = req.get_json() if req.get_body() else {}
     except ValueError:
         body = {}
 
-    min_year = int(
-        body.get("min_year", 2010)
-    )
+    min_year = int(body.get("min_year", 2010))
 
     try:
         service = _blob_service()
 
-        raw = service.get_container_client(
-            RAW_CONTAINER
+        raw = service.get_container_client(RAW_CONTAINER)
+
+        curated = service.get_container_client(CURATED_CONTAINER)
+
+        source_blob = _find_blob(raw, EIA_GENERATION_PREFIX, EIA_GENERATION_FILENAME)
+
+        generation = build_generation_dataframe(_download_bytes(raw, source_blob), min_year=min_year)
+
+        partitions = dataframe_to_partitioned_parquet(
+            generation,
+            EIA_GENERATION_OUTPUT,
         )
 
-        curated = (
-            service.get_container_client(
-                CURATED_CONTAINER
+        for blob_name, parquet_bytes in partitions:
+            curated.upload_blob(
+                name=blob_name,
+                data=parquet_bytes,
+                overwrite=True,
             )
-        )
-
-        source_blob = _find_blob(
-            raw,
-            EIA_GENERATION_PREFIX,
-            EIA_GENERATION_FILENAME,
-        )
-
-        generation = (
-            build_generation_dataframe(
-                _download_bytes(
-                    raw,
-                    source_blob,
-                ),
-                min_year=min_year,
-            )
-        )
-
-        parquet = (
-            generation_to_parquet_bytes(
-                generation
-            )
-        )
-
-        curated.upload_blob(
-            name=EIA_GENERATION_OUTPUT,
-            data=parquet,
-            overwrite=True,
-        )
 
         result = {
             "status": "success",
-            "rows_written": len(
-                generation
-            ),
-            "states": int(
-                generation[
-                    "state_code"
-                ].nunique()
-            ),
-            "producer_types": int(
-                generation[
-                    "producer_type"
-                ].nunique()
-            ),
-            "energy_sources": int(
-                generation[
-                    "energy_source"
-                ].nunique()
-            ),
-            "min_period": (
-                generation["period"]
-                .min()
-                .strftime("%Y-%m")
-            ),
-            "max_period": (
-                generation["period"]
-                .max()
-                .strftime("%Y-%m")
-            ),
-            "source_file": source_blob,
-            "output": (
-                f"{CURATED_CONTAINER}/"
-                f"{EIA_GENERATION_OUTPUT}"
-            ),
+            "rows_written": len(generation),
+            "min_period": (generation["period"].min().strftime("%Y-%m")),
+            "max_period": (generation["period"].max().strftime("%Y-%m")),
+            "partitions_written": len(partitions),
         }
 
         logging.info(
