@@ -181,6 +181,13 @@ resource "azurerm_synapse_firewall_rule" "client" {
   end_ip_address       = var.allowed_ip_address
 }
 
+resource "azurerm_synapse_firewall_rule" "azure_services" {
+  name                 = "AllowAllWindowsAzureIps"
+  synapse_workspace_id = azurerm_synapse_workspace.main.id
+  start_ip_address     = "0.0.0.0"
+  end_ip_address       = "0.0.0.0"
+}
+
 resource "azurerm_synapse_sql_pool" "warehouse" {
   name                 = "energydw"
   synapse_workspace_id = azurerm_synapse_workspace.main.id
