@@ -29,7 +29,3 @@ output "synapse_sql_endpoint" {
 output "dedicated_sql_pool_name" {
   value = azurerm_synapse_sql_pool.warehouse.name
 }
-
-output "curated_storage_url" {
-  value = "https://${azurerm_storage_account.datalake.name}.dfs.core.windows.net/curated/"
-}
