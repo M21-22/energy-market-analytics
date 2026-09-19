@@ -1,7 +1,8 @@
 /* =========================================================
    ADF MANAGED IDENTITY PERMISSIONS
-   Principal:
-   adf-energyanalytics-dev-zgovlf
+
+   Required SQLCMD variable:
+     ADF_NAME
    ========================================================= */
 
 /* =========================================================
@@ -12,10 +13,10 @@ IF NOT EXISTS
 (
     SELECT 1
     FROM sys.database_principals
-    WHERE name = 'adf-energyanalytics-dev-zgovlf'
+    WHERE name = '$(ADF_NAME)'
 )
 BEGIN
-    CREATE USER [adf-energyanalytics-dev-zgovlf]
+    CREATE USER [$(ADF_NAME)]
     FROM EXTERNAL PROVIDER;
 END;
 GO
@@ -25,8 +26,7 @@ GO
    --------------------------------------------------------- */
 
 GRANT EXECUTE ON SCHEMA::dw
-TO [adf-energyanalytics-dev-zgovlf];
-GO
+TO [$(ADF_NAME)];
 
 
 /* ---------------------------------------------------------
@@ -35,8 +35,7 @@ GO
    --------------------------------------------------------- */
 
 GRANT SELECT ON SCHEMA::stg
-TO [adf-energyanalytics-dev-zgovlf];
-GO
+TO [$(ADF_NAME)];
 
 
 /* ---------------------------------------------------------
@@ -46,12 +45,10 @@ GO
    --------------------------------------------------------- */
 
 GRANT DELETE ON SCHEMA::stg
-TO [adf-energyanalytics-dev-zgovlf];
-GO
+TO [$(ADF_NAME)];
 
 GRANT INSERT ON SCHEMA::stg
-TO [adf-energyanalytics-dev-zgovlf];
-GO
+TO [$(ADF_NAME)];
 
 
 /* ---------------------------------------------------------
@@ -60,8 +57,7 @@ GO
    --------------------------------------------------------- */
 
 GRANT SELECT ON SCHEMA::dw
-TO [adf-energyanalytics-dev-zgovlf];
-GO
+TO [$(ADF_NAME)];
 
 
 /* ---------------------------------------------------------
@@ -69,8 +65,7 @@ GO
    --------------------------------------------------------- */
 
 GRANT INSERT ON SCHEMA::dw
-TO [adf-energyanalytics-dev-zgovlf];
-GO
+TO [$(ADF_NAME)];
 
 
 /* ---------------------------------------------------------
@@ -78,5 +73,5 @@ GO
    --------------------------------------------------------- */
 
 GRANT ADMINISTER DATABASE BULK OPERATIONS
-TO [adf-energyanalytics-dev-zgovlf];
+TO [$(ADF_NAME)];
 GO
