@@ -138,7 +138,6 @@ def process_noaa(req: func.HttpRequest) -> func.HttpResponse:
         result = {
             "status": "success",
             "rows_written": len(climate),
-            "min_period": climate["period"].min().strftime("%Y-%m"),
             "max_period": climate["period"].max().strftime("%Y-%m"),
             "partitions_written": len(partitions),
         }
@@ -204,7 +203,6 @@ def process_eia_retail(
         result = {
             "status": "success",
             "rows_written": len(retail),
-            "min_period": retail["period"].min().strftime("%Y-%m"),
             "max_period": retail["period"].max().strftime("%Y-%m"),
             "partitions_written": len(partitions),
         }
@@ -277,7 +275,6 @@ def process_eia_generation(
         result = {
             "status": "success",
             "rows_written": len(generation),
-            "min_period": (generation["period"].min().strftime("%Y-%m")),
             "max_period": (generation["period"].max().strftime("%Y-%m")),
             "partitions_written": len(partitions),
         }
