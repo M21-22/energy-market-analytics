@@ -41,11 +41,11 @@ GO
 
 /* ---------------------------------------------------------
    3. Refresh staging
-   TRUNCATE requires ALTER
+   DELETE requires DELETE
    COPY INTO requires INSERT
    --------------------------------------------------------- */
 
-GRANT ALTER ON SCHEMA::stg
+GRANT DELETE ON SCHEMA::stg
 TO [adf-energyanalytics-dev-zgovlf];
 GO
 
