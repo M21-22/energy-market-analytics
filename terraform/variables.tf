@@ -62,3 +62,8 @@ variable "tags" {
     managed_by  = "terraform"
   }
 }
+
+variable "alert_email" {
+  description = "Email address for pipeline failure alerts"
+  type        = string
+}
