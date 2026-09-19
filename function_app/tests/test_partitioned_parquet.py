@@ -70,3 +70,14 @@ def test_missing_partition_columns_raises_error():
         assert "Missing partition columns" in str(exc)
 
 
+def test_empty_dataframe_returns_no_partitions():
+    df = pd.DataFrame(
+        columns=["year", "month", "value"]
+    )
+
+    files = dataframe_to_partitioned_parquet(
+        df,
+        "test/data",
+    )
+
+    assert files == []
