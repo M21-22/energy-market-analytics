@@ -308,20 +308,3 @@ def _validate_generation(
         raise ValueError(
             "Month outside 1-12 detected"
         )
-
-
-def dataframe_to_parquet_bytes(
-    df: pd.DataFrame,
-) -> bytes:
-
-    buffer = BytesIO()
-
-    df.to_parquet(
-        buffer,
-        index=False,
-        engine="pyarrow",
-        coerce_timestamps="ms",
-        allow_truncated_timestamps=True,
-    )
-
-    return buffer.getvalue()

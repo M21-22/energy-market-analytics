@@ -1,9 +1,6 @@
 from __future__ import annotations
 
 from functools import reduce
-from io import BytesIO
-from typing import Iterable
-
 import pandas as pd
 
 
@@ -255,17 +252,3 @@ def _validate_climate(df: pd.DataFrame) -> None:
     }
     if unknown_states:
         raise ValueError(f"Unexpected states: {sorted(unknown_states)}")
-
-
-def dataframe_to_parquet_bytes(df: pd.DataFrame) -> bytes:
-    buffer = BytesIO()
-
-    df.to_parquet(
-        buffer,
-        index=False,
-        engine="pyarrow",
-        coerce_timestamps="ms",
-        allow_truncated_timestamps=True,
-    )
-    
-    return buffer.getvalue()

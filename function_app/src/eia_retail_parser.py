@@ -153,17 +153,3 @@ def _validate_retail(df: pd.DataFrame) -> None:
         raise ValueError(
             f"Unexpected sectors: {sorted(unknown_sectors)}"
         )
-
-
-def dataframe_to_parquet_bytes(df: pd.DataFrame) -> bytes:
-    buffer = BytesIO()
-
-    df.to_parquet(
-        buffer,
-        index=False,
-        engine="pyarrow",
-        coerce_timestamps="ms",
-        allow_truncated_timestamps=True,
-    )
-
-    return buffer.getvalue()
