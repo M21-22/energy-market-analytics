@@ -28,6 +28,12 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install test dependencies
+        run: pip install -r function_app/requirements-dev.txt
+
+      - name: Run Function tests
+        run: pytest function_app/tests -q
+
       - name: Azure login
         uses: azure/login@v2
         with:
