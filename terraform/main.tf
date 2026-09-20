@@ -135,6 +135,10 @@ resource "azurerm_function_app_flex_consumption" "main" {
     type = "SystemAssigned"
   }
 
+  app_settings = {
+    DATA_LAKE_ACCOUNT_NAME = azurerm_storage_account.datalake.name
+  }
+
   site_config {}
 
   tags = var.tags
@@ -199,4 +203,28 @@ resource "azurerm_synapse_sql_pool" "warehouse" {
   geo_backup_policy_enabled = false
 
   tags = var.tags
+}
+
+# -----------------------------------------------------------------------------
+# Azure Key Vault
+# -----------------------------------------------------------------------------
+
+data "azurerm_client_config" "current" {}
+
+resource "azurerm_key_vault" "main" {
+  name                = "kv-${local.compact_name}-${local.suffix}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  sku_name            = "standard"
+
+  rbac_authorization_enabled = true
+
+  tags = var.tags
+}
+
+resource "azurerm_role_assignment" "adf_key_vault_secrets" {
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_data_factory.main.identity[0].principal_id
 }
