@@ -1,4 +1,4 @@
-name: Deploy Azure Function
+name: Test and Deploy Azure Function
 
 on:
   push:
@@ -12,12 +12,8 @@ env:
   PYTHON_VERSION: '3.12'
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Checkout repository
@@ -33,6 +29,19 @@ jobs:
 
       - name: Run Function tests
         run: pytest function_app/tests -q
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch'
+    needs: test
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Azure login
         uses: azure/login@v2
