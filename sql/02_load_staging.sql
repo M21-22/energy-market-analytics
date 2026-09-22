@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE dw.usp_LoadStagingIncremental
+CREATE PROCEDURE dw.usp_LoadStagingIncremental
     @storage_base VARCHAR(1000),
     @climate_max_period DATE,
     @retail_max_period DATE,
@@ -9,8 +9,8 @@ BEGIN
 
     DECLARE @watermark DATE;
     DECLARE @current_period DATE;
-    DECLARE @sources VARCHAR(8000);
-    DECLARE @sql VARCHAR(8000);
+    DECLARE @sources VARCHAR(MAX);
+    DECLARE @sql VARCHAR(MAX);
 
 
     /* =========================================================
@@ -43,7 +43,7 @@ BEGIN
                   END
                 + ''''
                 + @storage_base
-                + 'climate/year='
+                + '/climate/year='
                 + CAST(YEAR(@current_period) AS VARCHAR(4))
                 + '/month='
                 + RIGHT(
@@ -120,7 +120,7 @@ BEGIN
                   END
                 + ''''
                 + @storage_base
-                + 'eia/retail/year='
+                + '/eia/retail/year='
                 + CAST(YEAR(@current_period) AS VARCHAR(4))
                 + '/month='
                 + RIGHT(
@@ -196,7 +196,7 @@ BEGIN
                   END
                 + ''''
                 + @storage_base
-                + 'eia/generation/year='
+                + '/eia/generation/year='
                 + CAST(YEAR(@current_period) AS VARCHAR(4))
                 + '/month='
                 + RIGHT(

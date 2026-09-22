@@ -26,11 +26,23 @@ GO
 GRANT EXECUTE ON SCHEMA::dw
 TO [$(ADF_NAME)];
 
+GRANT SELECT ON SCHEMA::dw
+TO [$(ADF_NAME)];
+
+GRANT INSERT ON SCHEMA::dw
+TO [$(ADF_NAME)];
+
 /* ---------------------------------------------------------
    COPY INTO executed by the staging procedure.
    --------------------------------------------------------- */
 
 GRANT INSERT ON SCHEMA::stg
+TO [$(ADF_NAME)];
+
+GRANT SELECT ON SCHEMA::stg
+TO [$(ADF_NAME)];
+
+GRANT DELETE ON SCHEMA::stg
 TO [$(ADF_NAME)];
 
 GRANT ADMINISTER DATABASE BULK OPERATIONS

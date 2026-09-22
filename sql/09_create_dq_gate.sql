@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE dw.usp_ValidateStaging
+CREATE PROCEDURE dw.usp_ValidateStaging
 AS
 BEGIN
     SET NOCOUNT ON;
