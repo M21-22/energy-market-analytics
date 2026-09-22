@@ -282,6 +282,27 @@ function-eia-retail-key
 function-eia-generation-key
 ```
 
+The secret values must not be committed to the repository or stored in Terraform.
+
+For each Function endpoint:
+
+1. Open the Function App in Azure Portal.
+2. Open the corresponding function.
+3. Open **Function Keys**.
+4. Copy the required function key value.
+5. Open `<key-vault-name>` → **Secrets**.
+6. Create the corresponding secret using the names above and paste the Function key as its value.
+
+The resulting mapping is:
+
+| Function endpoint | Key Vault secret |
+|---|---|
+| `process-noaa` | `function-noaa-key` |
+| `process-eia-retail` | `function-eia-retail-key` |
+| `process-eia-generation` | `function-eia-generation-key` |
+
+ADF then retrieves these secrets at runtime using its system-assigned Managed Identity.
+
 Each child pipeline first uses a Web activity to retrieve the corresponding secret from Key Vault with:
 
 ```text
